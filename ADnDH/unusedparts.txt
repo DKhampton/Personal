@@ -1,0 +1,55 @@
+
+
+/*
+int tmpFunc(void) {
+	FILE *aFile, *aDest;
+	BYTE dataBuf[32768];
+
+	if ((aFile = fopen("/home/dprokhorov/Downloads/PENTAGON.ROM","rb"))) {
+		fread(dataBuf,32768,1,aFile);
+		if ((aDest = fopen("/home/dprokhorov/Downloads/PENT0.ROM","wb"))) {
+			fwrite(dataBuf,16384,1,aDest);
+			fclose(aDest);
+		}
+		if ((aDest = fopen("/home/dprokhorov/Downloads/PENT1.ROM","wb"))) {
+			fwrite(dataBuf+16384,16384,1,aDest);
+			fclose(aDest);
+		}
+		fclose(aFile);
+	}
+	return 0;
+}
+*/
+
+
+/*
+ *
+ * 	//printNodeTree(&AllData,0,100,1,1);
+ * 	//loadCharacter(34526);
+	//const int ZeroValue = 0;
+	//sXMLTNode* tmp; sXMLTNode* rmv; sXMLTNode* xTime;
+
+	tmp = addNodeAndValue(&AllData, "Jopka", eDTString, "Kukaracha");
+	char a = 30; addNodeAndValue(tmp, "Pipa", eDTByte, &a);
+	int b = 117890; rmv = addNodeAndValue(tmp, "Alpha", eDTInt, &b);
+	int c = 3247873; addNodeAndValue(rmv, "Gnome", eDTInt, &c);
+	tmp = addNodeAndValue(&AllData, "Mraz", eDTString, "Silitus");
+
+
+//	printNodeTree(&AllData,0,100,1,1);
+//	printNodeTree(&AllData,0,1);
+
+//	printNodeTree(xPlayerList,0,100,0,0);
+
+//	printNodeTree(&AllData,0,100,0,1);
+	//	killNode(rmv);
+//	printNodeTree(&AllData,0,100);
+
+	//consoleModule(NULL);
+	//moveNodeTo(&AllData, xPlayerDenDi);
+ */
+
+//printf("\n++: %d(%d)\n", (int)Malloced, A);
+//printf("\n--: %d\n", (int)A);
+
+
