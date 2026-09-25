@@ -1,0 +1,21 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "GCC debug (ucrt64)",
+      "type": "cppdbg",
+      "request": "launch",
+      "program": "${workspaceFolder}/ad.exe",
+      "args": [],
+      "stopAtEntry": false,
+      "cwd": "${fileDirname}",
+      "externalConsole": false,
+      "MIMode": "gdb",
+      "miDebuggerPath": "C:\\Develop\\Tools\\MSYS2\\mingw32\\bin\\gdb.exe",
+      "environment": [
+        { "name": "PATH", "value": "C:\\Develop\\Tools\\MSYS2\\mingw32\\bin;${env:PATH}" }
+      ],
+      "preLaunchTask": "Make (mingw32)"
+    }
+  ]
+}

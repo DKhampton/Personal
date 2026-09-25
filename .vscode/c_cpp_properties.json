@@ -1,0 +1,12 @@
+{
+  "configurations": [
+    {
+      "name": "MINGW32",
+      "includePath": ["${workspaceFolder}/**"],
+      "compilerPath": "C:\\Develop\\Tools\\MSYS2\\mingw32\\bin\\gcc.exe",
+      "cStandard": "gnu17",
+      "intelliSenseMode": "windows-gcc-x86"
+    }
+  ],
+  "version": 4
+}
