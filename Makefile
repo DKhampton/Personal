@@ -1,42 +1,36 @@
 CC = C:/Develop/Tools/MSYS2/mingw32/bin/gcc.exe
-CFLAGS = -g -Wall -std=gnu17
+INCLUDE_SPECIAL := ./include/special/
+INCLUDE_COMMON := ./include/
+INCLUDE_SETUP := ./
 
-# Folders
+CFLAGS = -g -Wall -std=gnu17 -I$(INCLUDE_SETUP) -I$(INCLUDE_COMMON) -I$(INCLUDE_SPECIAL)
+LDFLAGS = -g
+
+SRCDIR = sources
 OBJDIR = build
-BINDIR = bin
 
-# Timestamp for release builds (YYYYMMDD_HHMM)
 TIMESTAMP := $(shell date +%Y%m%d_%H%M)
+DEBUG_TARGET := ./main.exe
+RELEASE_TARGET := ./main_$(TIMESTAMP).exe
 
-# Targets
-DEBUG_TARGET = $(BINDIR)/main.exe
-RELEASE_TARGET = $(BINDIR)/main_$(TIMESTAMP).exe
+# Recursively find every .c file under SRCDIR, no matter how deep
+SRCS := $(shell find $(SRCDIR) -name '*.c')
+OBJS := $(patsubst $(SRCDIR)/%.c,$(OBJDIR)/%.o,$(SRCS))
 
-# Source and object files
-SRCS = $(wildcard *.c)
-OBJS = $(patsubst %.c,$(OBJDIR)/%.o,$(SRCS))
-
-# Default target
 .DEFAULT_GOAL := debug
 
 debug: $(DEBUG_TARGET)
-
 release: $(RELEASE_TARGET)
 
-$(DEBUG_TARGET): $(OBJS) | $(BINDIR)
+$(DEBUG_TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(DEBUG_TARGET)
 
-$(RELEASE_TARGET): $(OBJS) | $(BINDIR)
+$(RELEASE_TARGET): $(OBJS)
 	$(CC) $(CFLAGS) $(OBJS) -o $(RELEASE_TARGET)
 
-$(OBJDIR)/%.o: %.c | $(OBJDIR)
+$(OBJDIR)/%.o: $(SRCDIR)/%.c
+	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-$(OBJDIR):
-	mkdir $(OBJDIR)
-
-$(BINDIR):
-	mkdir $(BINDIR)
-
 clean:
-	rm -rf $(OBJDIR) $(BINDIR)
+	rm -rf $(OBJDIR) $(DEBUG_TARGET) $(RELEASE_TARGET)

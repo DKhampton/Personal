@@ -3,7 +3,7 @@
 #include <stdlib.h>
 
 #include "nodes.h"
-#include "character.h"
+#include "ADnD/character.h"
 #include "files.h"
 
 #define IMPLEMENTATION_ENUM

@@ -1,7 +1,7 @@
 
 #include "global.h"
-#include "character.h"
-#include "charutils.h"
+#include "ADnD/character.h"
+#include "ADnD/charutils.h"
 #include "files.h"
 #include "nodes.h"
 #include "consoles.h"
