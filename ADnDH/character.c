@@ -1,58 +1,60 @@
 
 #include "global.h"
 
-#define XENUM_IMPLEMENT_MODE
-#include "eParSets.h"
-#define XENUM_IMPLEMENT_MODE
-#include "eParNames.h"
-
 #include "character.h"
 #include "nodes.h"
 
-void clearSetValues(sXMLTNode* aBase) {
-	sXMLTNode* xTmpParam = aBase->FirstSon;
+char* sTheSets[] = { "VOID", "Base", "Useful", "COUNT", };
+char* sParNames[] = { "VOID", "STR", "DEX", "CON", "PER", "WILL", "WIS", "INT", "CHA", "LUCK", "COUNT", };
+char* sSkillNames[] = { "VOID", "Two-Handed Swords", "Two-Handed Maces", "COUNT", };
+char* sInfoNames[] = { "VOID", "idDungeon", "posX", "posY", "posZ", "widthX", "widthY", "widthZ", "COUNT" };
+
+void clearSetValues(sXNode* aBase) {
+	sXNode* xTmpParam = aBase->FirstSon;
 	while (xTmpParam) { xTmpParam->Value.aInt = 0; xTmpParam = xTmpParam->Next; }
 }
 
-void addSingleParamsSet(sXMLTNode* aBase) {
+void addSingleSet(sXNode* aBase) {
 	int i; for (i = 1; i < epnCOUNT; i++) {
-		addNodeAndValue(aBase, sParNames[i], eDTInt, UNIZEROVALUE);	} }
+		addNodeAndValue(aBase, sParNames[i], eDTDataS32, UNIZEROVALUE, false); }
 
-void addFullParamsSet(sXMLTNode* aBase) {
-	sXMLTNode* xTmpParamsTmp;
+}
+
+void addFullSet(sXNode* aBase) {
+	sXNode* xTmpParamsTmp;
 	int i; for (i = 1; i < epsCOUNT; i++) {
-		xTmpParamsTmp = addNodeAndValue(aBase, sParSets[i], eDTCollection, UNIZEROVALUE);
-		addSingleParamsSet(xTmpParamsTmp); } }
+		xTmpParamsTmp = addNodeAndValue(aBase, sTheSets[i], eDTCollection, UNIZEROVALUE, false);
+		addSingleSet(xTmpParamsTmp); } }
 
-sXMLTNode* createCharacterFromFunc(sXMLTNode* aBase, sXMLTNode* aOwner, char* aAlias, char* aName) {
-	sXMLTNode* xTmpChar =
-		addNodeAndValue(aBase, aAlias, eDTsCharacter, UNIZEROVALUE);
-		addNodeAndValue(xTmpChar, "Name", eDTString, (uUniValue)aName);
-		addNodeAndValue(xTmpChar, "Owner", eDTReference, (uUniValue)aOwner);
-		sXMLTNode* xTmpParams =	addNodeAndValue(xTmpChar, "Parameters", eDTCollection, UNIZEROVALUE); addFullParamsSet(xTmpParams);
+sXNode* createCharacterFromFunc(sXNode* aBase, sXNode* aOwner, char* aAlias, char* aName) {
+	sXNode* xTmpChar =
+		addNodeAndValue(aBase, aAlias, eDTsCharacter, UNIZEROVALUE, true);
+		addNodeAndValue(xTmpChar, "Name", eDTString, (uUniValue)aName, true);
+		addNodeAndValue(xTmpChar, "Owner", eDTReference, (uUniValue)aOwner, false);
+		sXNode* xTmpParams =	addNodeAndValue(xTmpChar, "Parameters", eDTCollection, UNIZEROVALUE, false); addFullSet(xTmpParams);
 	return xTmpChar;
 }
 
-void deleteCharacter(sXMLTNode* aChar) { }
+void deleteCharacter(void* aChar) { }
 
-void setParamS(sXMLTNode* aChar, char* aPar, char* aSet, int aValue) {
-	sXMLTNode* aParamNode = findNode(aChar, "Parameters", aSet, aPar, NULL);
+void setParamS(sXNode* aChar, char* aSet, char* aPar, int aValue) {
+	sXNode* aParamNode = findNode(aChar, "Parameters", aSet, aPar, NULL);
 	if (!aParamNode) { GlobalError("Parameter NOT FOUND in collection"); }
 	aParamNode->Value.aInt = aValue;
 }
 
-void setParamE(sXMLTNode* aChar, eParNames aPar, eParSets aSet, int aValue) {
-	setParamS(aChar, sParNames[aPar], sParSets[aSet], aValue);
+void setParamE(sXNode* aChar, eTheSets aSet, eParNames aPar, int aValue) {
+	setParamS(aChar, sTheSets[aSet], sParNames[aPar], aValue);
 }
 
-int getParamS(sXMLTNode* aChar, char* aPar, char* aSet) {
-	sXMLTNode* aParamNode = findNode(aChar, "Parameters", aSet, aPar, NULL);
+int getParamS(sXNode* aChar, char* aSet, char* aPar) {
+	sXNode* aParamNode = findNode(aChar, "Parameters", aSet, aPar, NULL);
 	if (!aParamNode) { GlobalError("Parameter NOT FOUND in collection"); }
 	return aParamNode->Value.aInt;
 }
 
-int getParamE(sXMLTNode* aChar, eParNames aPar, eParSets aSet) {
-	return getParamS(aChar, sParNames[aPar], sParSets[aSet]);
+int getParamE(sXNode* aChar, eTheSets aSet, eParNames aPar) {
+	return getParamS(aChar, sTheSets[aSet], sParNames[aPar]);
 }
 
 /*

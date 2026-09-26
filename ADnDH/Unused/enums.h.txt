@@ -1,0 +1,40 @@
+#ifndef ENUM_GUARD
+#define ENUM_GUARD
+
+#define CREATE_ENUM_STRINGS_STRUCT(ENUM_TYPE_NAME) typedef struct { ENUM_TYPE_NAME aMarker; char* aString; } ENUM_TYPE_NAME##Table;
+
+#endif
+
+/*
+#ifndef ENUM_IMPLEMENTATION
+
+#define ENUM_START(name) char* name##Strings[]; \
+    typedef enum name name; \
+    enum name {
+
+#define ENUM(id,val) id = val,
+#define ESTR(id,val,rgconf...) id = val,
+
+#define ENUM_END };
+
+#else
+// C code generation
+
+#include <stdlib.h>
+
+#undef ENUM_START
+#undef ENUM
+#undef ESTR
+#undef ENUM_END
+
+#define ENUM_START(name) exCode2Str name##_str[] = {
+
+#define ENUM(id,val) {id, (char *[]){#id, NULL}},
+#define ESTR(id,val,rgconf...) {id, (char *[]){rgconf, NULL}},
+
+#define ENUM_END {-1, NULL} \
+    };
+
+#endif
+*/
+

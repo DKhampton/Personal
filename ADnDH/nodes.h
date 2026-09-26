@@ -2,11 +2,11 @@
 #define NODES_H_
 
 #include "global.h"
-#include "eDataTypes.h"
+#include "nodes.enums.h"
 
 typedef union {
-	void* aVoid;
-	char* aString;
+	void* pVoid;
+	char* pString;
 	char  aChar;
 	char  aChars[4];
 	BYTE  aByte;
@@ -17,34 +17,40 @@ typedef union {
 	WORD  aWords[2];
 	int   aInt;
 	DWORD aDword;
-	struct sXMLTNode* sXMLTNode;
+	IPv4Struct aIPv4;
+	struct ssXNode* pXNode;
 } uUniValue;
 
-typedef struct sXMLTNode {
-	int UniqueID;
-	DWORD NodeMark;
-	eDataTypes DataType;
-	uUniValue Value;
-	char* Name;
-	struct sXMLTNode* FirstSon;
-	struct sXMLTNode* Parent;
-	struct sXMLTNode* Next;
-} sXMLTNode;
+typedef void (*xCleaner)(void*);
 
-typedef struct sUNIQItem {
-	int UniqueID;
-	int Used;
-	struct sXMLTNode* Node;
-	struct sUNIQItem* Next;
+typedef struct ssXNode {
+	DWORD NodeMark;					// +4
+	DWORD UniqueID;					// +4
+	eDataTypes DataType;			// +4
+	DWORD AutoClean:1;				// +4
+	DWORD ssXNReserved:31;
+	uUniValue Value;				// PtrSize
+	char* Name;						// PtrSize
+	struct ssXNode* FirstSon;		// PtrSize
+	struct ssXNode* Parent;			// PtrSize
+	struct ssXNode* Next;			// PtrSize
+} sXNode;
+
+typedef struct ssUNIQItem {
+	DWORD UniqueID;					// +4
+	BYTE Used;						// +4
+	BYTE ssUNIReserved[3];
+	struct ssXNode* Node;			// PtrSize
+	struct ssUNIQItem* Next;		// PtrSize
 } sUNIQItem;
 
 extern uUniValue UNIZEROVALUE;
-extern sXMLTNode AllData;
-extern void printNodeTree(sXMLTNode* aNode, int level, int maxl, int showID, int showName, int showValue);
-extern sXMLTNode* addNodeAndValue(sXMLTNode* aParent, char* aName, eDataTypes aDataType, uUniValue aValue);
-extern sXMLTNode* findNode(sXMLTNode* aNode, ... ); // NULL as last argument is a MUST!!!
-extern void killNodeTree(sXMLTNode* aNode);
+extern sXNode AllData;
+extern void debugNodeTree(sXNode* aNode, int level, int maxl, int showID, int showName, int showValue);
+extern sXNode* addNodeAndValue(sXNode* aParent, char* aName, eDataTypes aDataType, uUniValue aValue, DWORD autoClean);
+extern sXNode* findNode(sXNode* aNode, ... ); // NULL as last argument is a MUST!!!
+extern void killNodeTree(sXNode* aNode);
 extern void killUniques(void);
-extern void moveNodeTo(sXMLTNode* aParent, sXMLTNode* aNode);
+extern void moveNodeTo(sXNode* aParent, sXNode* aNode);
 
 #endif /* NODES_H_ */

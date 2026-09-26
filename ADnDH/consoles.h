@@ -3,8 +3,6 @@
 
 #include "global.h"
 
-
-
 extern int consoleModule(void* cmdList);
 
 #endif /* CONSOLES_H_ */

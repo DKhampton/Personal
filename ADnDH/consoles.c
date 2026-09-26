@@ -5,6 +5,8 @@
  *      Author: dprokhorov
  */
 
+#include "global.h"
+
 #define CON_OPENER ">"
 #define CON_MAX_LEN 4096
 
@@ -27,20 +29,25 @@ int getch()
     return ch;
 }
 #endif
-
+/*
 int consoleModule(void* cmdList) {
 	//static char conBuffer[CON_MAX_LEN] = { };
 	int conSym = 0;
-	printf("\n"CON_OPENER" ");
+	debug("\n"CON_OPENER" ");
 
 	for (;;) {
-		conSym = getch();
-		if (conSym == 27) break;
-		else {
-			printf("%c", conSym);
+		if (kbhit()) {
+			conSym = getch();
+			if (conSym == 27) break;
+			else if (conSym == 32) break;
+			else {
+				debug("%c", conSym);
+			}
+		sleep(100);
 		}
 	}
 
+
 	return 0;
 }
-
+*/

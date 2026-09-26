@@ -1,0 +1,180 @@
+/*
+char* sDataTypes[] = {
+	"VOID",
+	"COLLECTION",
+	"REFERENCE",
+	"REFEREDID",
+	"RESERVED0",
+	"RESERVED1",
+	"RESERVED2",
+	"RESERVED3",
+	"BYTE",
+	"CHAR",
+	"WORD",
+	"SHORT",
+	"DWORD",
+	"INT",
+	"STR",
+	"S_CHAR",
+//	"COUNTER",
+};
+*/
+
+/*
+int tmpFunc(void) {
+	FILE *aFile, *aDest;
+	BYTE dataBuf[32768];
+
+	if ((aFile = fopen("/home/dprokhorov/Downloads/PENTAGON.ROM","rb"))) {
+		fread(dataBuf,32768,1,aFile);
+		if ((aDest = fopen("/home/dprokhorov/Downloads/PENT0.ROM","wb"))) {
+			fwrite(dataBuf,16384,1,aDest);
+			fclose(aDest);
+		}
+		if ((aDest = fopen("/home/dprokhorov/Downloads/PENT1.ROM","wb"))) {
+			fwrite(dataBuf+16384,16384,1,aDest);
+			fclose(aDest);
+		}
+		fclose(aFile);
+	}
+	return 0;
+}
+*/
+
+
+/*
+ *
+ * 	//printNodeTree(&AllData,0,100,1,1);
+ * 	//loadCharacter(34526);
+	//const int ZeroValue = 0;
+	//sXMLTNode* tmp; sXMLTNode* rmv; sXMLTNode* xTime;
+
+	tmp = addNodeAndValue(&AllData, "Jopka", eDTString, "Kukaracha");
+	char a = 30; addNodeAndValue(tmp, "Pipa", eDTByte, &a);
+	int b = 117890; rmv = addNodeAndValue(tmp, "Alpha", eDTInt, &b);
+	int c = 3247873; addNodeAndValue(rmv, "Gnome", eDTInt, &c);
+	tmp = addNodeAndValue(&AllData, "Mraz", eDTString, "Silitus");
+
+
+//	printNodeTree(&AllData,0,100,1,1);
+//	printNodeTree(&AllData,0,1);
+
+//	printNodeTree(xPlayerList,0,100,0,0);
+
+//	printNodeTree(&AllData,0,100,0,1);
+	//	killNode(rmv);
+//	printNodeTree(&AllData,0,100);
+
+	//consoleModule(NULL);
+	//moveNodeTo(&AllData, xPlayerDenDi);
+ */
+
+//printf("\n++: %d(%d)\n", (int)Malloced, A);
+//printf("\n--: %d\n", (int)A);
+
+
+/*
+typedef enum {
+	eDTVoid,
+	eDTCollection,
+	eDTReference,
+	eDTReferedID,
+	eDTRefUser,
+	eDTRefU8,
+	eDTRefS8,
+	eDTRefU16,
+	eDTRefS16,
+	eDTRefU32,
+	eDTRefS32,
+//	eDTRefU64,
+//	eDTRefS64,
+	eDTString,
+	eDTReserved0,
+	eDTReserved1,
+	eDTReserved2,
+	eDTReserved3,
+	eDTDataU8,
+	eDTDataS8,
+	eDTDataU16,
+	eDTDataS16,
+	eDTDataU32,
+	eDTDataS32,
+	eDTsCharacter,
+	eDTsMemFile,
+	eDTCOUNT,
+} eDataTypes;
+*/
+//extern char* sDataTypes[];
+
+/*
+int mainSub(int argc, char **argv) {
+
+	DWORD a,b,x,y;
+	a = 1; b = 5;
+//	a = a ^ (a<<1);
+//	a = a ^ (a<<2);
+//	a = a ^ (a<<4);
+	x = 3 * a * b;
+
+	//x = a ^ 255; //0b01010101;
+	y = x * ((2+8+32+128)/2); //0b01010101;
+	//y = y ^ 65535;
+	y = x ^ (2*a); y = y ^ b; //y ^ (a << 8);
+	y = y + 2*a +b;
+	//y = y ^ x; y = y ^ (x << 4);
+
+	void print_dword(DWORD dword) { printf("%s\n", sprintb_dword(NULL,dword)); }
+	void print_word(WORD word) { printf("%s\n", sprintb_word(NULL,word)); }
+
+	print_dword(y);
+	print_word(y);
+
+	DWORD amultival[4] = { 9, 7, 65535, 49152 };
+
+	NewString(aString,512);
+	printf("%s\n",sprintbx(aString,&amultival[0],16,'\''));
+	UniDelete(aString);
+
+	return 0;
+}
+
+
+
+#define MAX_DATA_SIZE (1024)
+BYTE oriData[MAX_DATA_SIZE];
+BYTE curData[MAX_DATA_SIZE];
+DWORD dataLimit;
+
+int mainWrt(int argc, char **argv) {
+
+	BYTE xBuf[10] = { 0x10, 0x11, 0x12, 0x13, 0x14, 0x15, 0x16, 0x17, 0x18, 0x19 };
+	size_t xLen = 3;
+	FILE* aFile;
+	if ((aFile = fopen("C:/Develop/Files/test.bin","rb+"))) {
+		fseek(aFile,32,SEEK_SET);
+		fwrite(xBuf,xLen,1,aFile);
+		fclose(aFile);
+	}
+
+	return 0;
+}
+
+int mainCountQuick(int argc, char **argv) {
+
+	DWORD baseAddr = 0x20019f08;
+
+	DWORD givenAddr = 0x2001a460;
+	DWORD givenChunk = 111;
+
+	for (;0;) {
+		printf("Loop!");
+	}
+
+	DWORD resChunk = (givenAddr - baseAddr) / 8;
+	DWORD resAddr = baseAddr + givenChunk * 8;
+	printf("Addr->Chunk: %d\n",resChunk);
+	printf("Chunk->Addr: 0x%08x\n",resAddr);
+
+	return 0;
+}
+*/

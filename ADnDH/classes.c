@@ -6,6 +6,7 @@
  */
 
 #include "global.h"
+#include "files.h"
 
 typedef struct _sList {
 	int ValueID;
@@ -13,21 +14,25 @@ typedef struct _sList {
 	struct _sList* Next;
 } sList;
 
+typedef enum {
+	ecerNoError,
+	ecerWrongParameters,
+	ecerMemoryError
+} eClassError;
+
+typedef struct _sDynamicData sDynamicData;
+
 typedef struct {
+	char ClassName[32];
 	BYTE versionMinor;
 	BYTE versionMajor;
 	WORD versionBuild;
 	DWORD dataSize;
-	char ClassName[32];
-} sClassInfo;
-
-typedef struct {
-	sClassInfo classInfo;
-	void (*Destructor)(void* this);
-	void (*Constructor)(void* this);  // could be later changed to constructor list with types
-	struct _sDynamicData* (*Duplicate)(void* this);
-	struct _sDynamicData* (LoadFromXML);
-	char* (*SaveAsXML)(void* this);
+	eClassError (*Destructor)(sDynamicData* this);
+	eClassError (*Constructor)(sDynamicData* this);  // could be later changed to constructor list with types
+	sDynamicData* (*Duplicate)(sDynamicData* this);
+//	sDynamicData* (*LoadFromXML)(sMemFile* xmlFile);
+//	sMemFile* (*SaveAsXML)(sDynamicData* this);
 } sClassStatic;
 
 typedef struct {
@@ -55,22 +60,19 @@ void probe(int a) {
 
 }
 */
-
-
-/*
-sDynamicData* class_findClassByID(int classID) {
+sDynamicType* class_findClassByID(int classID) {
 	return NULL;
 }
 
 int myDynamicTypes[10]; // holds module's dynamic type IDs
 sDynamicData* class_createInstance(int classID) {
 	DWORD tmpValue;
-	NewCleanObject(aInstance,sDynamicData);
+	NewObjectClean(aInstance,sDynamicData);
 	if ((aInstance->classType = class_findClassByID(classID))) {
-		if ((tmpValue = aInstance->classType->classStatic->classInfo.dataSize)) {
-			AddCleanBlock(aInstance->dataLocation,tmpValue);
+		if ((tmpValue = aInstance->classType->classStatic->dataSize)) {
+			AddBlockClean(aInstance->dataLocation,tmpValue);
 		}
-	} else Delete(aInstance);
+	} else UniDelete(aInstance);
 	return aInstance;
 }
 
@@ -86,7 +88,6 @@ void system_typeListRegister(sList classList) {
 void system_typeListUnregister(sList classList) {
 
 }
-*/
 
 //#define New(aVar,sClass) sDynamicData(aVar)=system_SearchType(sClass)->classBody->Constructor
 
@@ -96,38 +97,6 @@ class Probe {
 
 };
 */
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 

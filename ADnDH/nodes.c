@@ -2,22 +2,21 @@
 #include <stdarg.h>
 #include <stdlib.h>
 
-#include "global.h"
-
-#define XENUM_IMPLEMENT_MODE
-#include "eDataTypes.h"
-
 #include "nodes.h"
 #include "character.h"
+#include "files.h"
+
+#define IMPLEMENTATION_ENUM
+#include "nodes.enums.h"
 
 #define OFFSETTAB (1)
-#define VALUE_STRING_LEN (64)
+#define DEBUG_STRING_VALUE_LEN (64)
 #define ALL_ACTIVE_DATA "AllLoadedData"
 #define NODE_MARK (0xBABE4DAD)
 
 uUniValue UNIZEROVALUE = { .aInt = 0 };
-sXMLTNode AllData = { 0, NODE_MARK, eDTVoid, { .aVoid = NULL } , ALL_ACTIVE_DATA, NULL, NULL, NULL }; //NULL,
-sUNIQItem AllUniques = { 0, 1, &AllData };
+sXNode AllData = { NODE_MARK, 0, eDTVoid, 0, 0, { .pVoid = NULL }, ALL_ACTIVE_DATA, NULL, NULL, NULL }; //NULL,
+sUNIQItem AllUniques = { 0, 1, { 0, 0, 0 }, &AllData };
 
 void killUniques(void) {
 	sUNIQItem* aItem = &AllUniques;
@@ -27,7 +26,7 @@ void killUniques(void) {
 	};
 }
 
-static sUNIQItem* findUniqueID(int uID) {
+static sUNIQItem* findUniqueID(DWORD uID) {
 	sUNIQItem* aItem;
 	for (aItem = &AllUniques; aItem && (aItem->UniqueID != uID); aItem = aItem->Next);
 	return aItem;
@@ -40,48 +39,48 @@ static void findUniqueIDAndRemoveRef(int uID) {
 }
 */
 
-static void findAndFreeUniqueID(int uID) {
+static void findAndFreeUniqueID(DWORD uID) {
 	sUNIQItem* aItem;
-	if ((aItem = findUniqueID(uID))) { if (--aItem->Used) { xDebug("Cross Reference left"); } aItem->Used = 0; }
-	else { xDebug("uID was not found"); }
+	if ((aItem = findUniqueID(uID))) { if (--aItem->Used) { debug("Cross Reference left"); } aItem->Used = 0; }
+	else { debug("uID was not found"); }
 }
 
-static int findAndBindEmptyUnique(sXMLTNode* aNode) {
-	sUNIQItem* aItem; int aValue = 0;
+static DWORD findAndBindEmptyUnique(sXNode* aNode) {
+	sUNIQItem* aItem; DWORD aValue = 0;
 	for (aItem = &AllUniques; ; aItem = aItem->Next) {
 		if (!aItem->Used) { aValue = aItem->UniqueID; aItem->Used++; break; }
 		if (!aItem->Next) { break; } }
 	if (aValue) { aItem->Node = aNode; }
-	else { AddCleanObject(aItem->Next, sUNIQItem); aValue = aItem->UniqueID + 1; aItem->Next->UniqueID = aValue; aItem->Next->Node = aNode; aItem->Next->Used++; }
+	else { AddObjectClean(aItem->Next, sUNIQItem); aValue = aItem->UniqueID + 1; aItem->Next->UniqueID = aValue; aItem->Next->Node = aNode; aItem->Next->Used++; }
 	return aValue;
 }
 
-//static int checkValidMark(sXMLTNode* aNode) { return ((aNode == &AllData) || (aNode && (aNode->NodeMark == NODE_MARK))); }
-static int checkValidMark(sXMLTNode* aNode) { return ((aNode && (aNode->NodeMark == NODE_MARK))); }
+//static int checkValidMark(sXNode* aNode) { return ((aNode == &AllData) || (aNode && (aNode->NodeMark == NODE_MARK))); }
+static int checkValidMark(sXNode* aNode) { return ((aNode && (aNode->NodeMark == NODE_MARK))); }
 
-static sXMLTNode* findLast(sXMLTNode* aNode) {
-	sXMLTNode* aLast = aNode;
+static sXNode* findLast(sXNode* aNode) {
+	sXNode* aLast = aNode;
 	if (aLast) { while (aLast->Next) { aLast = aLast->Next; } }
 	return aLast;
 }
 
-static sXMLTNode* findPrevious(sXMLTNode* aNode) {
-	sXMLTNode* aPrev;
+static sXNode* findPrevious(sXNode* aNode) {
+	sXNode* aPrev;
 	for (aPrev = aNode->Parent->FirstSon; aPrev; aPrev = aPrev->Next)
 		if (aPrev->Next == aNode) return aPrev;
 	GlobalError("Error in index search");
 	return aPrev;
 }
 
-static sXMLTNode* findNodeByName(sXMLTNode* aNode, char* aName) {
+static sXNode* findNodeByName(sXNode* aNode, char* aName) {
 	for (aNode = aNode->FirstSon; aNode; aNode = aNode->Next)
 		if (!strcmp(aNode->Name, aName)) break;
 	return aNode;
 }
 
 // adds node as First Son
-static void insertFirst(sXMLTNode* aParent, sXMLTNode* newSon) {
-	sXMLTNode* aOldFirst;
+static void insertFirst(sXNode* aParent, sXNode* newSon) {
+	sXNode* aOldFirst;
 	if (!checkValidMark(aParent)) { GlobalError("Given parent problem"); }
 	aOldFirst = aParent->FirstSon;
 	aParent->FirstSon = newSon;
@@ -89,33 +88,33 @@ static void insertFirst(sXMLTNode* aParent, sXMLTNode* newSon) {
 	newSon->Parent = aParent;
 }
 
-static void insertBefore(sXMLTNode* aTarget, sXMLTNode* newSon) {
+static void insertBefore(sXNode* aTarget, sXNode* newSon) {
 	if (!checkValidMark(aTarget)) { GlobalError("Given target problem"); }
 	if (aTarget->Parent->FirstSon == aTarget) { insertFirst(aTarget->Parent, newSon); }
 	else {
-		sXMLTNode* aPrev = findPrevious(aTarget);
+		sXNode* aPrev = findPrevious(aTarget);
 		aPrev->Next = newSon;
 		newSon->Next = aTarget;
 		newSon->Parent = aTarget->Parent;
 	}
 }
 
-static void insertAfter(sXMLTNode* aTarget, sXMLTNode* newSon) {
+static void insertAfter(sXNode* aTarget, sXNode* newSon) {
 	if (!checkValidMark(aTarget)) { GlobalError("Given target problem"); }
 	newSon->Next = aTarget->Next;
 	newSon->Parent = aTarget->Parent;
 	aTarget->Next = newSon;
 }
 
-static void insertLast(sXMLTNode* aParent, sXMLTNode* newSon) {
+static void insertLast(sXNode* aParent, sXNode* newSon) {
 	if (!checkValidMark(aParent)) { GlobalError("Given parent problem"); }
-	sXMLTNode* aNode;
+	sXNode* aNode;
 	if ((aNode = findLast(aParent->FirstSon))) { insertAfter(aNode, newSon); }
 	else { insertFirst(aParent, newSon); }
 }
 
-static sXMLTNode* addNode(sXMLTNode* aParent, char* aName) {
-	NewCleanObject(newNode, sXMLTNode);
+static sXNode* addNode(sXNode* aParent, char* aName) {
+	NewObjectClean(newNode, sXNode);
 	AddStringCopy(newNode->Name, aName);
 	newNode->UniqueID = findAndBindEmptyUnique(newNode);
 	newNode->NodeMark = NODE_MARK;
@@ -130,50 +129,62 @@ void temporary_makevalid(void) {
 	insertAfter(NULL,NULL);
 }
 
-static void addValue(sXMLTNode* aNode, eDataTypes aDataType, uUniValue aValue) {
+static void addValue(sXNode* aNode, eDataTypes aDataType, uUniValue aValue, DWORD autoClean) {
 	aNode->DataType = aDataType;
 
+
+	// Check or Set cleaner Pass
 	switch (aDataType) {
 
-		case eDTByte: case eDTChar: case eDTWord: case eDTShort: case eDTDword: case eDTInt:
+		// ignores Cleaner cause data is in Value cell
+		case eDTVoid:
+		case eDTDataU8: case eDTDataS8: case eDTDataU16: case eDTDataS16: case eDTDataU32: case eDTDataS32:
 		case eDTReserved0: case eDTReserved1: case eDTReserved2: case eDTReserved3:
-		case eDTVoid: case eDTsCharacter: case eDTCollection: { break; }
+		case eDTReferedID: case eDTReference: case eDTCollection: { if (autoClean) { GlobalError("AutoClean Set for Static"); } aNode->AutoClean = autoClean; break; }
 
-		case eDTString: case eDTsMemFile: case eDTReferedID: case eDTReference: { if (!aValue.aVoid) { GlobalError("Empty NewObjectValue"); } break; }
+		// set cleaners for types
+		case eDTPtrU8: case eDTPtrU16: case eDTPtrU32: case eDTPtrS8: case eDTPtrS16: case eDTPtrS32: //case eDTPtrU64: case eDTPtrS64:
+		case eDTPtrUser: case eDTsCharacter: case eDTsMemFile: case eDTString: { aNode->AutoClean = autoClean; break; }
 
 		default: { GlobalError("Unknown DataType"); break; }
 	}
 
+	// Check for empty object value
 	switch (aDataType) {
-
-		case eDTByte: case eDTChar: case eDTWord: case eDTShort: case eDTDword: case eDTInt:
-		case eDTReferedID: case eDTReference: { aNode->Value = aValue; break; }
-
-		case eDTString: { AddStringCopy(aNode->Value.aString, aValue.aString); break; }
-
+		case eDTPtrU8: case eDTPtrU16: case eDTPtrU32: case eDTPtrS8: case eDTPtrS16: case eDTPtrS32: //case eDTPtrU64: case eDTPtrS64:
+		case eDTString: case eDTsMemFile: { if (!aValue.pVoid) { GlobalError("Empty object not allowed"); } break; }
 		default: { break; }
+	}
+
+
+	switch (aDataType) {
+		// duplicates string if cleaner is set or passes char* for static strings
+		case eDTVoid: { aNode->Value.aDword = 0; break; };
+		case eDTString: { if (autoClean) { AddStringCopy(aNode->Value.pString, aValue.pString); } else { aNode->Value = aValue; } break; }
+
+		default: { aNode->Value = aValue; break; }
 	}
 }
 
-static void cleanNodeValue(sXMLTNode* aNode) {
-	switch (aNode->DataType) {
+static void cleanNodeValue(sXNode* aNode) {
+	// call cleaner if set
+	if (aNode->AutoClean) {
+		switch (aNode->DataType) {
 
-		case eDTString: { xFree(aNode->Value.aString); break; }
-		case eDTsCharacter: { deleteCharacter(aNode->Value.aVoid); break; }
+			case eDTPtrU8: case eDTPtrU16: case eDTPtrU32: //case eDTPtrU64:
+			case eDTPtrS8: case eDTPtrS16: case eDTPtrS32: //case eDTPtrS64:
+			case eDTPtrUser: case eDTString: { if (aNode->Value.pVoid) { xFree(aNode->Value.pVoid); } break; }
+			case eDTsCharacter: { deleteCharacter(aNode->Value.pVoid); break; }
+			case eDTsMemFile: { killMemFile(aNode->Value.pVoid); break; }
 
-		case eDTByte: case eDTShort: case eDTInt:
-		case eDTChar: case eDTWord:	case eDTDword:
-		case eDTReference: case eDTReferedID:
-		case eDTVoid: case eDTCollection:
-		case eDTReserved0: case eDTReserved1:
-		case eDTReserved2: case eDTReserved3:
-		default: { break; }
+			default: { GlobalError("AutoClean Act for Static"); break; }
+		}
 	}
 }
 
-sXMLTNode* addNodeAndValue(sXMLTNode* aParent, char* aName, eDataTypes aDataType, uUniValue aValue) {
-	sXMLTNode* aNode = addNode(aParent, aName);
-	addValue(aNode, aDataType, aValue);
+sXNode* addNodeAndValue(sXNode* aParent, char* aName, eDataTypes aDataType, uUniValue aValue, DWORD autoClean) {
+	sXNode* aNode = addNode(aParent, aName);
+	addValue(aNode, aDataType, aValue, autoClean);
 	return aNode;
 }
 
@@ -194,14 +205,14 @@ static int tokenCountNonSeparator(char* aString) {
 	return aCount;
 }
 
-static sXMLTNode* findNodeByPath(sXMLTNode* aNode, char* aName) {
-	sXMLTNode* aFound = NULL;
+static sXNode* findNodeByPath(sXNode* aNode, char* aName) {
+	sXNode* aFound = NULL;
 	int aLen; char* aTmp;
 	if ((aTmp = aName) && (aLen = strlen(aName))) {
 		aFound = aNode;
 		while ((aTmp = tokenFindFirstNonSeparator(aTmp))) {
 			aLen = tokenCountNonSeparator(aTmp);
-			NewFixedCopy(aToken, aTmp, aLen);
+			NewStringCopyFixed(aToken, aTmp, aLen);
 			aFound = findNodeByName(aFound, aToken);
 			xFree(aToken);
 			aTmp += aLen;
@@ -211,8 +222,8 @@ static sXMLTNode* findNodeByPath(sXMLTNode* aNode, char* aName) {
 	return aFound;
 }
 
-sXMLTNode* findNode(sXMLTNode* aNode, ... ) {
-	sXMLTNode* aFound = aNode;
+sXNode* findNode(sXNode* aNode, ... ) {
+	sXNode* aFound = aNode;
 	char* aStringArg;
 	if (aFound) {
 		va_list argList;
@@ -224,9 +235,9 @@ sXMLTNode* findNode(sXMLTNode* aNode, ... ) {
 	return aFound;
 }
 
-static int amIFirstSon(sXMLTNode* aNode) { return (aNode->Parent->FirstSon == aNode); }
+static DWORD amIFirstSon(sXNode* aNode) { return (aNode->Parent->FirstSon == aNode); }
 
-static void unlinkNodeTree(sXMLTNode* aNode) {
+static void unlinkNodeTree(sXNode* aNode) {
 	if (aNode->Parent) {
 		if (amIFirstSon(aNode)) { aNode->Parent->FirstSon = aNode->Next; }
 		else findPrevious(aNode)->Next = aNode->Next; }
@@ -235,9 +246,9 @@ static void unlinkNodeTree(sXMLTNode* aNode) {
 }
 
 // Recursive nodes kill
-void killNodeTree(sXMLTNode* aNode) {
+void killNodeTree(sXNode* aNode) {
 	while (aNode->FirstSon) { killNodeTree(aNode->FirstSon); }
-	//Prevent to kill Root Node
+	//Prevent to kill Global Root Node
 	if (aNode->UniqueID) {
 		unlinkNodeTree(aNode);
 		cleanNodeValue(aNode);
@@ -247,66 +258,70 @@ void killNodeTree(sXMLTNode* aNode) {
 	}
 }
 
-void moveNodeTo(sXMLTNode* aParent, sXMLTNode* aNode) {
+void moveNodeTo(sXNode* aParent, sXNode* aNode) {
 	unlinkNodeTree(aNode);
 	insertFirst(aParent, aNode);
 }
 
-//void killAllSons(sXMLTNode* aNode) { while (aNode->FirstSon) { killNode(aNode->FirstSon); } }
+//void killAllSons(sXNode* aNode) { while (aNode->FirstSon) { killNode(aNode->FirstSon); } }
 
-static void printOffset(int level, char aChar) {
+static void debugOffset(int level, char aChar) {
 	int offset = level * OFFSETTAB;
-	printf("\n"); while (offset--) { printf(" "); }
-	if (aChar) printf("%c",aChar);
+	debug("\n"); while (offset--) { debug(" "); }
+	if (aChar) debug("%c",aChar);
 }
 
-static void printValue(sXMLTNode* aNode) {
-	NewString(valueString, VALUE_STRING_LEN);
+static void debugValue(sXNode* aNode) {
+	NewString(valueString, DEBUG_STRING_VALUE_LEN);
 	switch (aNode->DataType) {
-	case eDTByte: case eDTChar: { sprintf(valueString, "== BYTE:['%d']", aNode->Value.aChar); break; }
-	case eDTWord: case eDTShort: { sprintf(valueString, "== WORD:['%d']", aNode->Value.aShort); break; }
-	case eDTDword: case eDTInt: { sprintf(valueString, "== DWORD:['%d']", aNode->Value.aInt); break; }
-	case eDTString: { snprintf(valueString, VALUE_STRING_LEN - 1, "== STR:['%s']", aNode->Value.aString); break; }
-	case eDTReference: { snprintf(valueString, VALUE_STRING_LEN - 1, "-> '%s'", (((sXMLTNode*)(aNode->Value.aVoid))->Name)); break; }
-	case eDTReferedID: { snprintf(valueString, VALUE_STRING_LEN - 1, "-> (ID 0x%08x)", (((sUNIQItem*)(aNode->Value.aVoid))->UniqueID)); break; }
-	default: { valueString[0] = 0; break; } }
-	printf("%s", valueString);
+		case eDTDataU8: case eDTDataS8: { sprintf(valueString, "== BYTE:['%d']", aNode->Value.aChar); break; }
+		case eDTDataU16: case eDTDataS16: { sprintf(valueString, "== WORD:['%d']", aNode->Value.aShort); break; }
+		case eDTDataU32: case eDTDataS32: { sprintf(valueString, "== DWORD:['%d']", aNode->Value.aInt); break; }
+		case eDTPtrU8: case eDTPtrS8: { sprintf(valueString, "-> BYTE:['%d']", *(BYTE*)aNode->Value.pVoid); break; }
+		case eDTPtrU16: case eDTPtrS16: { sprintf(valueString, "-> WORD:['%d']", *(WORD*)aNode->Value.pVoid); break; }
+		case eDTPtrU32: case eDTPtrS32: { sprintf(valueString, "-> DWORD:['%d']", *(DWORD*)aNode->Value.pVoid); break; }
+//		case eDTPtrU64: case eDTPtrS64: { sprintf(valueString, "-> QWORD:['%d-%d']", *((DWORD*)aNode->Value.pVoid + 0),*((DWORD*)aNode->Value.pVoid + sizeof(int))); break; }
+		case eDTPtrUser: { sprintf(valueString, "-> PTR:['0x%08x']", aNode->Value.aDword); break; }
+		case eDTString: { snprintf(valueString, DEBUG_STRING_VALUE_LEN - 1, "== STR:['%s']", aNode->Value.pString); break; }
+		case eDTReference: { snprintf(valueString, DEBUG_STRING_VALUE_LEN - 1, "-> '%s'", (aNode->Value.pXNode->Name)); break; } // ((sXNode*)(aNode->Value.pVoid))->Name));
+		case eDTReferedID: { snprintf(valueString, DEBUG_STRING_VALUE_LEN - 1, "-> (ID 0x%08x)", (((sUNIQItem*)(aNode->Value.pVoid))->UniqueID)); break; }
+		default: { valueString[0] = 0; break; } }
+	debug("%s", valueString);
 	xFree(valueString);
 }
 
-static void printNodeType(sXMLTNode* aNode) {
+static void debugNodeType(sXNode* aNode) {
 	switch (aNode->DataType) {
-	case eDTCollection: { printf(" {'%s'} ", aNode->Name); break; }
-	case eDTVoid: { printf(" '%s' ", aNode->Name); break; }
-	case eDTReference: case eDTReferedID: { printf(" <'%s'> ", aNode->Name); break; }
-	default: { printf(" ['%s'] ", aNode->Name); break; }
+		case eDTCollection: { debug(" {'%s'} ", aNode->Name); break; }
+		case eDTVoid: { debug(" '%s' ", aNode->Name); break; }
+		case eDTReference: case eDTReferedID: { debug(" <'%s'> ", aNode->Name); break; }
+		default: { debug(" ['%s'] ", aNode->Name); break; }
 	}
 }
 
-static void printNodeTreeInternal(sXMLTNode* aNode, int level, int maxl, int showID, int showName, int showValue) {
-	sXMLTNode* aSubs;
-
-	if (!aNode->UniqueID) { printf("\n<<<'%s'>>>", ALL_ACTIVE_DATA); }
+static void debugNodeTreeInternal(sXNode* aNode, int level, int maxl, int showID, int showName, int showValue) {
+	sXNode* aSubs;
+	if (!aNode->UniqueID) { debug("\n<<<'%s'>>>", ALL_ACTIVE_DATA); }
 	else {
-		printOffset(level, 0);
-		printf("*");
-		if (showID) printf(" (ID 0x%08x)", aNode->UniqueID);
-		if (showName) printNodeType(aNode);
-		if (showValue) printValue(aNode);
+		debugOffset(level, 0);
+		debug("*");
+		if (showID) debug(" (ID 0x%08x)", aNode->UniqueID);
+		if (showName) debugNodeType(aNode);
+		if (showValue) debugValue(aNode);
 	}
 
 	aSubs = aNode->FirstSon;
 	if (aSubs) {
 		if (level < maxl) {
-			printOffset(level, '{');
-			do printNodeTreeInternal(aSubs, level + 1, maxl, showID, showName, showValue);
+			debugOffset(level, '{');
+			do debugNodeTreeInternal(aSubs, level + 1, maxl, showID, showName, showValue);
 			while ((aSubs = aSubs->Next));
-			printOffset(level, '}');
-		} else printf(" { }");
+			debugOffset(level, '}');
+		} else debug(" { }");
 	}
 }
 
-void printNodeTree(sXMLTNode* aNode, int level, int maxl, int showID, int showName, int showValue) {
-	if (aNode && (level <= maxl)) { printNodeTreeInternal(aNode, level, maxl, showID, showName, showValue); printf("\n"); }
+void debugNodeTree(sXNode* aNode, int level, int maxl, int showID, int showName, int showValue) {
+	if (aNode && (level <= maxl)) { debugNodeTreeInternal(aNode, level, maxl, showID, showName, showValue); debug("\n"); }
 }
 

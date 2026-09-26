@@ -1,6 +1,8 @@
 #ifndef FILES_H_
 #define FILES_H_
 
+#include "global.h"
+
 #define MAX_PATH_LEN 256
 
 typedef struct {
@@ -9,6 +11,7 @@ typedef struct {
 } sMemFile;
 
 sMemFile* loadMemFile(char* filename);
+void killMemFile(void* filedata);
 
 #endif /* FILES_H_ */
 

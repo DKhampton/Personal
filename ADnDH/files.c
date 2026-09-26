@@ -12,3 +12,13 @@ sMemFile* loadMemFile(char* filename) {
 	if (tmpFile->FileSize != fread(tmpFile->FileData,1, tmpFile->FileSize, aFile)) GlobalError("File read error");
 	return tmpFile;
 }
+
+void killMemFile(void* filedata) {
+	sMemFile* aMemFile = (sMemFile*)filedata;
+	if (aMemFile) {
+		if (aMemFile->FileData) {
+			xFree(aMemFile->FileData);
+		}
+		xFree(aMemFile);
+	}
+}
