@@ -1,11 +1,15 @@
 
 #include "global.h"
-
 #include "character.h"
+
+#define XENUM_IMPLEMENT_MODE
+#include "parNames.enums.h"
+
+#define XENUM_IMPLEMENT_MODE
+#include "parSets.enums.h"
+
 #include "nodes.h"
 
-char* sTheSets[] = { "VOID", "Base", "Useful", "COUNT", };
-char* sParNames[] = { "VOID", "STR", "DEX", "CON", "PER", "WILL", "WIS", "INT", "CHA", "LUCK", "COUNT", };
 char* sSkillNames[] = { "VOID", "Two-Handed Swords", "Two-Handed Maces", "COUNT", };
 char* sInfoNames[] = { "VOID", "idDungeon", "posX", "posY", "posZ", "widthX", "widthY", "widthZ", "COUNT" };
 
@@ -23,7 +27,7 @@ void addSingleSet(sXNode* aBase) {
 void addFullSet(sXNode* aBase) {
 	sXNode* xTmpParamsTmp;
 	int i; for (i = 1; i < epsCOUNT; i++) {
-		xTmpParamsTmp = addNodeAndValue(aBase, sTheSets[i], eDTCollection, UNIZEROVALUE, false);
+		xTmpParamsTmp = addNodeAndValue(aBase, sParSets[i], eDTCollection, UNIZEROVALUE, false);
 		addSingleSet(xTmpParamsTmp); } }
 
 sXNode* createCharacterFromFunc(sXNode* aBase, sXNode* aOwner, char* aAlias, char* aName) {
@@ -43,8 +47,8 @@ void setParamS(sXNode* aChar, char* aSet, char* aPar, int aValue) {
 	aParamNode->Value.aInt = aValue;
 }
 
-void setParamE(sXNode* aChar, eTheSets aSet, eParNames aPar, int aValue) {
-	setParamS(aChar, sTheSets[aSet], sParNames[aPar], aValue);
+void setParamE(sXNode* aChar, eParSets aSet, eParNames aPar, int aValue) {
+	setParamS(aChar, sParSets[aSet], sParNames[aPar], aValue);
 }
 
 int getParamS(sXNode* aChar, char* aSet, char* aPar) {
@@ -53,8 +57,8 @@ int getParamS(sXNode* aChar, char* aSet, char* aPar) {
 	return aParamNode->Value.aInt;
 }
 
-int getParamE(sXNode* aChar, eTheSets aSet, eParNames aPar) {
-	return getParamS(aChar, sTheSets[aSet], sParNames[aPar]);
+int getParamE(sXNode* aChar, eParSets aSet, eParNames aPar) {
+	return getParamS(aChar, sParSets[aSet], sParNames[aPar]);
 }
 
 /*

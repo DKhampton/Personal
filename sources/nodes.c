@@ -6,7 +6,7 @@
 #include "ADnD/character.h"
 #include "files.h"
 
-#define IMPLEMENTATION_ENUM
+#define XENUM_IMPLEMENT_MODE
 #include "nodes.enums.h"
 
 #define OFFSETTAB (1)

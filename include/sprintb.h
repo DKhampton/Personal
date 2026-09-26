@@ -4,9 +4,9 @@
 
 #include "global.h"
 
-char* sprintbx(char* dest, void* source, BYTE bytes, char separator);
-char* sprintb(char* dest, void* source, BYTE bytes);
-char* sprintb_dword(char* dest, DWORD dword);
-char* sprintb_word(char* dest, WORD word);
+extern char* sprintbx(char* dest, void* source, BYTE bytes, char separator);
+extern char* sprintb(char* dest, void* source, BYTE bytes);
+extern char* sprintb_dword(char* dest, DWORD dword);
+extern char* sprintb_word(char* dest, WORD word);
 
 #endif /* SPRINTB_H_ */

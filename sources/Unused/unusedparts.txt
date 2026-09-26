@@ -19,6 +19,30 @@ char* sDataTypes[] = {
 //	"COUNTER",
 };
 */
+/*
+typedef enum {
+	epnVoid,
+	epnSTR,
+	epnDEX,
+	epnCON,
+	epnPER,
+	epnWILL,
+	epnWIS,
+	epnINT,
+	epnCHA,
+	epnLUCK,
+	epnCOUNT
+} eParNames;
+extern char* sParNames[];
+
+typedef enum {
+	epsVoid,
+	epsBase,
+	epsUseful,
+	epsCOUNT
+} eTheSets;
+extern char* sTheSets[];
+*/
 
 /*
 int tmpFunc(void) {

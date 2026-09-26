@@ -1,5 +1,5 @@
 
-#ifndef EPARSETS_H_
+#if (!defined EPARSETS_H_) || (defined XENUM_IMPLEMENT_MODE)
 #ifndef XENUM_IMPLEMENT_MODE
 #define EPARSETS_H_
 #endif

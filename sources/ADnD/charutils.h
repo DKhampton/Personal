@@ -10,8 +10,8 @@
 
 #include "global.h"
 
-void countUseful(sXNode* aCharBase);
-int getTwoParamsPlus(sXNode* aCharBase, eParNames aPar1, eParNames aPar2);
+extern void countUseful(sXNode* aCharBase);
+extern int getTwoParamsPlus(sXNode* aCharBase, eParNames aPar1, eParNames aPar2);
 
 
 #endif /* CHARUTILS_H_ */

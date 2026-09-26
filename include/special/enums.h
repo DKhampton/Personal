@@ -12,17 +12,15 @@
 #endif
 
 #ifdef XENUM_IMPLEMENT_MODE
-	#define XENUM_BEGIN(Name) char* e##Name##_Strings[] = {
+	#define XENUM_BEGIN(Name) char* s##Name[] = {
 	#define XENUM_LINE(Call,String,Value) String,
 	#define XENUM_END(Name) };
 #else
 	#define XENUM_BEGIN(Name) typedef enum {
 	#define XENUM_LINE(Call,String,Value) Call = Value,
-	#define XENUM_END(Name) } e##Name ; extern char* e##Name##_Strings[];
+	#define XENUM_END(Name) } e##Name ; extern char* s##Name[];
 #endif
 
 #ifdef XENUM_IMPLEMENT_MODE
 	#undef XENUM_IMPLEMENT_MODE
 #endif
-
-

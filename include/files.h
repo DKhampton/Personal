@@ -10,8 +10,8 @@ typedef struct {
 	char* FileData;
 } sMemFile;
 
-sMemFile* loadMemFile(char* filename);
-void killMemFile(void* filedata);
+extern sMemFile* loadMemFile(char* filename);
+extern void killMemFile(void* filedata);
 
 #endif /* FILES_H_ */
 
