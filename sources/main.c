@@ -1,5 +1,5 @@
-
 #include "global.h"
+
 #include "ADnD/character.h"
 #include "ADnD/charutils.h"
 #include "files.h"
@@ -13,41 +13,39 @@ QWORD global64bit = 11111111111111;
 
 int mainMod(int argc, char **argv) {
 
-	debug("Hello\n"); fillDelimiterLine();
+	console("Hello\n"); consoleFillDelimiterLine();
 	sXNode* search;
 
-	sXNode* xSystem = addNodeAndValue(&AllData, "System", eDTCollection, UNIZEROVALUE, false);
+	sXNode* xSystem = nodesAddNodeAndValue(&AllData, "System", eDTCollection, UNIZEROVALUE, false);
 	//sXNode* xRealTime =
-			addNodeAndValue(xSystem, "RealTime", eDTPtrU32, (uUniValue)((void*)&SystemTimer), false);
+			nodesAddNodeAndValue(xSystem, "RealTime", eDTPtrU32, (uUniValue)((void*)&SystemTimer), false);
 	//sXNode* xWorldTime =
-			addNodeAndValue(xSystem, "WorldTime", eDTPtrU32, (uUniValue)((void*)&WorldTimer), false);
-			addNodeAndValue(xSystem, "TryUserData", eDTPtrUser, (uUniValue)((void*)&global64bit), false);
+			nodesAddNodeAndValue(xSystem, "WorldTime", eDTPtrU32, (uUniValue)((void*)&WorldTimer), false);
+			nodesAddNodeAndValue(xSystem, "TryUserData", eDTPtrUser, (uUniValue)((void*)&global64bit), false);
 
-	sXNode* xPlayerList = addNodeAndValue(&AllData, "PlayerList", eDTCollection, UNIZEROVALUE, false);
+	sXNode* xPlayerList = nodesAddNodeAndValue(&AllData, "PlayerList", eDTCollection, UNIZEROVALUE, false);
 	sXNode* xPlayerDenDi =
-			addNodeAndValue(xPlayerList, "DenDi", eDTString, (uUniValue)"Den Di Khampton", false);
+			nodesAddNodeAndValue(xPlayerList, "DenDi", eDTString, (uUniValue)"Den Di Khampton", false);
 	//sXNode* xPlayerVarg =
-			addNodeAndValue(xPlayerList, "Varg", eDTString, (uUniValue)"Varg Varconous", false);
+			nodesAddNodeAndValue(xPlayerList, "Varg", eDTString, (uUniValue)"Varg Varconous", false);
 
-	sXNode* xCharacterList = addNodeAndValue(&AllData, "CharacterList", eDTCollection, UNIZEROVALUE, false);
+	sXNode* xCharacterList = nodesAddNodeAndValue(&AllData, "CharacterList", eDTCollection, UNIZEROVALUE, false);
 	createCharacterFromFunc(xCharacterList, xPlayerDenDi, "Eric", "Eric Airslasher IV");
 
-	debugNodeTree(&AllData,0,1,1,1,1);	fillDelimiterLine();
+	nodesConsoleTree(&AllData,0,1,1,1,1); consoleFillDelimiterLine();
 
-	search = findNode(&AllData, "System", "TryUserData", NULL);
-	if (search) { debug("0x%08x",search->Value.aDword); }
+	search = nodesFindNode(&AllData, "System", "TryUserData", NULL);
+	if (search) { console("0x%08x",search->Value.aDword); }
 
-	search = findNode(&AllData, "cfgport", "miditx", "1", "shift", NULL);
+	search = nodesFindNode(&AllData, "cfgport", "miditx", "1", "shift", NULL);
 
 
-	debugNodeTree(xPlayerDenDi,0,1,1,1,1);	fillDelimiterLine();
-
-	debugNodeTree(&AllData,0,40,1,1,1);	fillDelimiterLine();
+	nodesConsoleTree(xPlayerDenDi,0,1,1,1,1);	nodesConsoleTree(&AllData,0,40,1,1,1);	nodesConsoleTree(&AllData,0,40,1,1,1);	consoleFillDelimiterLine();
 
 
 	// -------------------------------------------------------------------------------------------------------
 
-	search = findNode(&AllData, "CharacterList", "Eric", NULL);
+	search = nodesFindNode(&AllData, "CharacterList", "Eric", NULL);
 
 	setParamE(search,epsBase,epnSTR,10);
 	setParamE(search,epsBase,epnDEX,8);
@@ -58,35 +56,35 @@ int mainMod(int argc, char **argv) {
 
 	countUseful(search);
 
-	debugNodeTree(search,0,40,1,1,1); fillDelimiterLine();
+	nodesConsoleTree(search,0,40,1,1,1); consoleFillDelimiterLine();
 
 	// -------------------------------------------------------------------------------------------------------
 
-	debug("\nBonus: %d\n", getTwoParamsPlus(search,epnDEX,epnSTR));
-
-	// -------------------------------------------------------------------------------------------------------
-/*
-	search = findNode(&AllData, "PlayerList/Varg", NULL);
-	debugNodeTree(search,0,0,1,1,1); fillDelimiterLine();
-
-	search = findNode(&AllData, "System", "WorldTime", NULL);
-	debugNodeTree(search,0,0,1,1,1); fillDelimiterLine();
-
-	search = findNode(&AllData, "CharacterList", NULL);
-	killNodeTree(search);
-
-	debugNodeTree(&AllData,0,40,1,1,1);	fillDelimiterLine();
-*/
+	console("\nBonus: %d\n", getTwoParamsPlus(search,epnDEX,epnSTR));
 
 	// -------------------------------------------------------------------------------------------------------
 
-	killNodeTree(&AllData); killUniques();
+	search = nodesFindNode(&AllData, "PlayerList/Varg", NULL);
+	nodesConsoleTree(search,0,0,1,1,1); consoleFillDelimiterLine();
+
+	search = nodesFindNode(&AllData, "System", "WorldTime", NULL);
+	nodesConsoleTree(search,0,0,1,1,1); consoleFillDelimiterLine();
+
+	search = nodesFindNode(&AllData, "CharacterList", NULL);
+	nodesKillTree(search);
+
+	nodesConsoleTree(&AllData,0,40,1,1,1); consoleFillDelimiterLine();
+
+
+	// -------------------------------------------------------------------------------------------------------
+
+	nodesKillTree(&AllData); nodesKillUniques();
 
 #ifdef DEBUG_MALLOC
 	debug("\nMallocs Left: %d\n", mallocsMade);
 #endif
 
-	return GlobalError(NULL);
+	return 0;
 }
 
 int main(int argc, char **argv) {

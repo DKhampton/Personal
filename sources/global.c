@@ -1,5 +1,6 @@
-
 #include "global.h"
+
+#include <stdarg.h>
 
 #ifdef DEBUG_MALLOC
 
@@ -36,7 +37,6 @@ void localFree(void* aAddr) {
 		}
 	} else { GlobalError("Freed Zero Pointer"); }
 }
-
 #else
 
 void* localMalloc(DWORD aSize) { return malloc(aSize); }
@@ -44,19 +44,31 @@ void  localFree(void* aData) { return free(aData); }
 
 #endif
 
-#define DELIMITERCHARSTR "~"
-#define MAXLINELENGTH 40
-void fillDelimiterLine(void) {
-	int i;
-	debug("\n");
-	for (i=0; i<MAXLINELENGTH; i++) { debug(DELIMITERCHARSTR); }
-	debug("\n");
+bool isSilentMode = false;
+void nothing(char* fmt, ...) { }
+void console(char* fmt, ...) {
+	if (!isSilentMode) {
+		va_list args;
+		va_start(args, fmt);
+		vprintf(fmt, args);
+		va_end(args);
+	}
 }
 
-#ifdef FUNCTION_IGNORE_GLOBAL_ERRORS
-int GlobalError(char* errorDesc) { if (errorDesc) { printf("Error: %s\n", errorDesc); return -1; } else { printf("No Error\n"); return 0; } }
+void fillDelimiterLine(void (*outputFunc)(char* fmt, ...)) {
+	int i;
+	outputFunc("\n");
+	for (i=0; i<CONSOLE_LINE_MAXLENGTH; i++) { outputFunc(CONSOLE_CMD_DELIMITERCHARSTR); }
+	outputFunc("\n");
+}
+
+void consoleFillDelimiterLine() { fillDelimiterLine(console); }
+
+#ifdef FUNCTION_GLOBAL_ERRORS_STUCK
+#define FGEEOS_TEMPORARY for(;;)
 #else
-int GlobalError(char* errorDesc) { if (errorDesc) { printf("Error: %s\n", errorDesc); exit(-1); } else { printf("No Error\n"); return 0; } }
+#define FGEEOS_TEMPORARY exit(-1)
 #endif
 
-
+int GlobalError(char* errorDesc) { if (errorDesc) { debug("Error: %s\n", errorDesc); } else { debug("Empty Error\n"); } FGEEOS_TEMPORARY; }
+void GlobalCheckNull(void* ptr) { if (!ptr) GlobalError(TEXT_MEMORY_LEAK); }

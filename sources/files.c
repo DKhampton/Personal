@@ -1,5 +1,5 @@
-
 #include "global.h"
+
 #include "files.h"
 
 sMemFile* loadMemFile(char* filename) {

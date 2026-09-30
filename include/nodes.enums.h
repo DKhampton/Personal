@@ -1,4 +1,3 @@
-
 #if (!defined ENODESENUMS_H_) || (defined XENUM_IMPLEMENT_MODE)
 #ifndef XENUM_IMPLEMENT_MODE
 #define ENODESENUMS_H_

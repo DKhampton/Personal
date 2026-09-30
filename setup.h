@@ -1,17 +1,16 @@
 #ifndef SETUP_H_
 #define SETUP_H_
 
+//#define BIG_ENDIAN
 #define PERVERTION
-#define DEBUG_MODE
 #define FUNCTION_IGNORE_GLOBAL_ERRORS
+
+//#define DEBUG_MODE
 //#define DEBUG_MALLOC
 
-
-#ifdef DEBUG_MODE
-	#define debug(...) printf(__VA_ARGS__)
-#else
-	#define debug(...)
-#endif
+#define CONSOLE_CMD_DELIMITERCHARSTR "~"
+#define CONSOLE_LINE_MAXLENGTH 80
+#define CONSOLE_STRING_VALUE_MAX_LEN (64)
 
 #ifdef PERVERTION
 #define MAXBONUSTABLEVALUE 20

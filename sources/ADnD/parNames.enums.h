@@ -1,4 +1,3 @@
-
 #if (!defined EPARNAMES_H_) || (defined XENUM_IMPLEMENT_MODE)
 #ifndef XENUM_IMPLEMENT_MODE
 #define EPARNAMES_H_

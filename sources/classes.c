@@ -1,11 +1,5 @@
-/*
- * classes.c
- *
- *  Created on: Mar 26, 2018
- *      Author: denys.prokhorov
- */
-
 #include "global.h"
+
 #include "files.h"
 
 typedef struct _sList {

@@ -1,10 +1,5 @@
-/*
- * charutils.c
- *
- *  Created on: Jul 11, 2018
- *      Author: denys.prokhorov
- */
 #include "global.h"
+
 #include "nodes.h"
 #include "character.h"
 

@@ -1,5 +1,5 @@
-
 #include "global.h"
+
 #include "character.h"
 
 #define XENUM_IMPLEMENT_MODE
@@ -20,29 +20,29 @@ void clearSetValues(sXNode* aBase) {
 
 void addSingleSet(sXNode* aBase) {
 	int i; for (i = 1; i < epnCOUNT; i++) {
-		addNodeAndValue(aBase, sParNames[i], eDTDataS32, UNIZEROVALUE, false); }
+		nodesAddNodeAndValue(aBase, sParNames[i], eDTDataS32, UNIZEROVALUE, false); }
 
 }
 
 void addFullSet(sXNode* aBase) {
 	sXNode* xTmpParamsTmp;
 	int i; for (i = 1; i < epsCOUNT; i++) {
-		xTmpParamsTmp = addNodeAndValue(aBase, sParSets[i], eDTCollection, UNIZEROVALUE, false);
+		xTmpParamsTmp = nodesAddNodeAndValue(aBase, sParSets[i], eDTCollection, UNIZEROVALUE, false);
 		addSingleSet(xTmpParamsTmp); } }
 
 sXNode* createCharacterFromFunc(sXNode* aBase, sXNode* aOwner, char* aAlias, char* aName) {
 	sXNode* xTmpChar =
-		addNodeAndValue(aBase, aAlias, eDTsCharacter, UNIZEROVALUE, true);
-		addNodeAndValue(xTmpChar, "Name", eDTString, (uUniValue)aName, true);
-		addNodeAndValue(xTmpChar, "Owner", eDTReference, (uUniValue)aOwner, false);
-		sXNode* xTmpParams =	addNodeAndValue(xTmpChar, "Parameters", eDTCollection, UNIZEROVALUE, false); addFullSet(xTmpParams);
+		nodesAddNodeAndValue(aBase, aAlias, eDTsCharacter, UNIZEROVALUE, true);
+		nodesAddNodeAndValue(xTmpChar, "Name", eDTString, (uUniValue)aName, true);
+		nodesAddNodeAndValue(xTmpChar, "Owner", eDTReference, (uUniValue)aOwner, false);
+		sXNode* xTmpParams =	nodesAddNodeAndValue(xTmpChar, "Parameters", eDTCollection, UNIZEROVALUE, false); addFullSet(xTmpParams);
 	return xTmpChar;
 }
 
 void deleteCharacter(void* aChar) { }
 
 void setParamS(sXNode* aChar, char* aSet, char* aPar, int aValue) {
-	sXNode* aParamNode = findNode(aChar, "Parameters", aSet, aPar, NULL);
+	sXNode* aParamNode = nodesFindNode(aChar, "Parameters", aSet, aPar, NULL);
 	if (!aParamNode) { GlobalError("Parameter NOT FOUND in collection"); }
 	aParamNode->Value.aInt = aValue;
 }
@@ -52,7 +52,7 @@ void setParamE(sXNode* aChar, eParSets aSet, eParNames aPar, int aValue) {
 }
 
 int getParamS(sXNode* aChar, char* aSet, char* aPar) {
-	sXNode* aParamNode = findNode(aChar, "Parameters", aSet, aPar, NULL);
+	sXNode* aParamNode = nodesFindNode(aChar, "Parameters", aSet, aPar, NULL);
 	if (!aParamNode) { GlobalError("Parameter NOT FOUND in collection"); }
 	return aParamNode->Value.aInt;
 }

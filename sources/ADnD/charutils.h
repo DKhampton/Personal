@@ -1,10 +1,3 @@
-/*
- * charutils.h
- *
- *  Created on: Jul 12, 2018
- *      Author: denys.prokhorov
- */
-
 #ifndef CHARUTILS_H_
 #define CHARUTILS_H_
 

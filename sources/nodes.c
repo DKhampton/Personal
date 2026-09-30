@@ -1,6 +1,6 @@
+#include "global.h"
 
 #include <stdarg.h>
-#include <stdlib.h>
 
 #include "nodes.h"
 #include "ADnD/character.h"
@@ -10,7 +10,6 @@
 #include "nodes.enums.h"
 
 #define OFFSETTAB (1)
-#define DEBUG_STRING_VALUE_LEN (64)
 #define ALL_ACTIVE_DATA "AllLoadedData"
 #define NODE_MARK (0xBABE4DAD)
 
@@ -18,7 +17,7 @@ uUniValue UNIZEROVALUE = { .aInt = 0 };
 sXNode AllData = { NODE_MARK, 0, eDTVoid, 0, 0, { .pVoid = NULL }, ALL_ACTIVE_DATA, NULL, NULL, NULL }; //NULL,
 sUNIQItem AllUniques = { 0, 1, { 0, 0, 0 }, &AllData };
 
-void killUniques(void) {
+void nodesKillUniques(void) {
 	sUNIQItem* aItem = &AllUniques;
 	sUNIQItem* aNext = aItem->Next;
 	while (aNext) {
@@ -26,26 +25,26 @@ void killUniques(void) {
 	};
 }
 
-static sUNIQItem* findUniqueID(DWORD uID) {
+static sUNIQItem* nodesFindUniqueID(DWORD uID) {
 	sUNIQItem* aItem;
 	for (aItem = &AllUniques; aItem && (aItem->UniqueID != uID); aItem = aItem->Next);
 	return aItem;
 }
 
 /*
-static void findUniqueIDAndRemoveRef(int uID) {
+static void nodesFindUniqueIDAndRemoveRef(int uID) {
 	sUNIQItem* aItem;
-	if ((aItem = findUniqueID(uID))) { if (aItem->Used < 2) { XDebug("No Reference to remove"); } else { aItem->Used--; } }
+	if ((aItem = nodesFindUniqueID(uID))) { if (aItem->Used < 2) { debug("[NODES] No Reference to remove"); } else { aItem->Used--; } }
 }
 */
 
-static void findAndFreeUniqueID(DWORD uID) {
+static void nodesFindAndFreeUniqueID(DWORD uID) {
 	sUNIQItem* aItem;
-	if ((aItem = findUniqueID(uID))) { if (--aItem->Used) { debug("Cross Reference left"); } aItem->Used = 0; }
-	else { debug("uID was not found"); }
+	if ((aItem = nodesFindUniqueID(uID))) { if (--aItem->Used) { debug("[NODES] Cross Reference left"); } aItem->Used = 0; }
+	else { debug("[NODES] uID was not found"); }
 }
 
-static DWORD findAndBindEmptyUnique(sXNode* aNode) {
+static DWORD nodesFindAndBindEmptyUnique(sXNode* aNode) {
 	sUNIQItem* aItem; DWORD aValue = 0;
 	for (aItem = &AllUniques; ; aItem = aItem->Next) {
 		if (!aItem->Used) { aValue = aItem->UniqueID; aItem->Used++; break; }
@@ -56,15 +55,15 @@ static DWORD findAndBindEmptyUnique(sXNode* aNode) {
 }
 
 //static int checkValidMark(sXNode* aNode) { return ((aNode == &AllData) || (aNode && (aNode->NodeMark == NODE_MARK))); }
-static int checkValidMark(sXNode* aNode) { return ((aNode && (aNode->NodeMark == NODE_MARK))); }
+static int nodesCheckValidMark(sXNode* aNode) { return ((aNode && (aNode->NodeMark == NODE_MARK))); }
 
-static sXNode* findLast(sXNode* aNode) {
+static sXNode* nodesFindLast(sXNode* aNode) {
 	sXNode* aLast = aNode;
 	if (aLast) { while (aLast->Next) { aLast = aLast->Next; } }
 	return aLast;
 }
 
-static sXNode* findPrevious(sXNode* aNode) {
+static sXNode* nodesFindPrevious(sXNode* aNode) {
 	sXNode* aPrev;
 	for (aPrev = aNode->Parent->FirstSon; aPrev; aPrev = aPrev->Next)
 		if (aPrev->Next == aNode) return aPrev;
@@ -72,64 +71,64 @@ static sXNode* findPrevious(sXNode* aNode) {
 	return aPrev;
 }
 
-static sXNode* findNodeByName(sXNode* aNode, char* aName) {
+static sXNode* nodesFindNodeByName(sXNode* aNode, char* aName) {
 	for (aNode = aNode->FirstSon; aNode; aNode = aNode->Next)
 		if (!strcmp(aNode->Name, aName)) break;
 	return aNode;
 }
 
 // adds node as First Son
-static void insertFirst(sXNode* aParent, sXNode* newSon) {
+static void nodesInsertFirst(sXNode* aParent, sXNode* newSon) {
 	sXNode* aOldFirst;
-	if (!checkValidMark(aParent)) { GlobalError("Given parent problem"); }
+	if (!nodesCheckValidMark(aParent)) { GlobalError("Given parent problem"); }
 	aOldFirst = aParent->FirstSon;
 	aParent->FirstSon = newSon;
 	newSon->Next = aOldFirst;
 	newSon->Parent = aParent;
 }
 
-static void insertBefore(sXNode* aTarget, sXNode* newSon) {
-	if (!checkValidMark(aTarget)) { GlobalError("Given target problem"); }
-	if (aTarget->Parent->FirstSon == aTarget) { insertFirst(aTarget->Parent, newSon); }
+static void nodesInsertBefore(sXNode* aTarget, sXNode* newSon) {
+	if (!nodesCheckValidMark(aTarget)) { GlobalError("Given target problem"); }
+	if (aTarget->Parent->FirstSon == aTarget) { nodesInsertFirst(aTarget->Parent, newSon); }
 	else {
-		sXNode* aPrev = findPrevious(aTarget);
+		sXNode* aPrev = nodesFindPrevious(aTarget);
 		aPrev->Next = newSon;
 		newSon->Next = aTarget;
 		newSon->Parent = aTarget->Parent;
 	}
 }
 
-static void insertAfter(sXNode* aTarget, sXNode* newSon) {
-	if (!checkValidMark(aTarget)) { GlobalError("Given target problem"); }
+static void nodesInsertAfter(sXNode* aTarget, sXNode* newSon) {
+	if (!nodesCheckValidMark(aTarget)) { GlobalError("Given target problem"); }
 	newSon->Next = aTarget->Next;
 	newSon->Parent = aTarget->Parent;
 	aTarget->Next = newSon;
 }
 
-static void insertLast(sXNode* aParent, sXNode* newSon) {
-	if (!checkValidMark(aParent)) { GlobalError("Given parent problem"); }
+static void nodesInsertLast(sXNode* aParent, sXNode* newSon) {
+	if (!nodesCheckValidMark(aParent)) { GlobalError("Given parent problem"); }
 	sXNode* aNode;
-	if ((aNode = findLast(aParent->FirstSon))) { insertAfter(aNode, newSon); }
-	else { insertFirst(aParent, newSon); }
+	if ((aNode = nodesFindLast(aParent->FirstSon))) { nodesInsertAfter(aNode, newSon); }
+	else { nodesInsertFirst(aParent, newSon); }
 }
 
-static sXNode* addNode(sXNode* aParent, char* aName) {
+static sXNode* nodesAddNode(sXNode* aParent, char* aName) {
 	NewObjectClean(newNode, sXNode);
 	AddStringCopy(newNode->Name, aName);
-	newNode->UniqueID = findAndBindEmptyUnique(newNode);
+	newNode->UniqueID = nodesFindAndBindEmptyUnique(newNode);
 	newNode->NodeMark = NODE_MARK;
-	insertLast(aParent, newNode);
+	nodesInsertLast(aParent, newNode);
 	return newNode;
 }
 
 void temporary_makevalid(void) {
-	insertBefore(NULL,NULL);
-	insertLast(NULL,NULL);
-	insertFirst(NULL,NULL);
-	insertAfter(NULL,NULL);
+	nodesInsertBefore(NULL,NULL);
+	nodesInsertLast(NULL,NULL);
+	nodesInsertFirst(NULL,NULL);
+	nodesInsertAfter(NULL,NULL);
 }
 
-static void addValue(sXNode* aNode, eDataTypes aDataType, uUniValue aValue, DWORD autoClean) {
+static void nodesAddValue(sXNode* aNode, eDataTypes aDataType, uUniValue aValue, DWORD autoClean) {
 	aNode->DataType = aDataType;
 
 
@@ -166,7 +165,7 @@ static void addValue(sXNode* aNode, eDataTypes aDataType, uUniValue aValue, DWOR
 	}
 }
 
-static void cleanNodeValue(sXNode* aNode) {
+static void nodesCleanNodeValue(sXNode* aNode) {
 	// call cleaner if set
 	if (aNode->AutoClean) {
 		switch (aNode->DataType) {
@@ -182,38 +181,37 @@ static void cleanNodeValue(sXNode* aNode) {
 	}
 }
 
-sXNode* addNodeAndValue(sXNode* aParent, char* aName, eDataTypes aDataType, uUniValue aValue, DWORD autoClean) {
-	sXNode* aNode = addNode(aParent, aName);
-	addValue(aNode, aDataType, aValue, autoClean);
+sXNode* nodesAddNodeAndValue(sXNode* aParent, char* aName, eDataTypes aDataType, uUniValue aValue, DWORD autoClean) {
+	sXNode* aNode = nodesAddNode(aParent, aName);
+	nodesAddValue(aNode, aDataType, aValue, autoClean);
 	return aNode;
 }
 
-#define SEPARATORSLIST " \\/;:,.>"
-static char* tokenFindFirstNonSeparator(char* aString) {
+static char* nodesTokenFindFirstNonSeparator(char* aString) {
 	char* aFound = NULL; int aValue;
 	while ((aValue = *aString)) {
-		if (strchr(SEPARATORSLIST, aValue)) { aString++; }
+		if (strchr(NODES_SEPARATOR_LIST, aValue)) { aString++; }
 		else { aFound = aString; break; } }
 	return aFound;
 }
 
-static int tokenCountNonSeparator(char* aString) {
+static int nodesTokenCountNonSeparator(char* aString) {
 	int aValue, aCount = 0;
 	while ((aValue = *aString)) {
-		if (strchr(SEPARATORSLIST, aValue)) { break; }
+		if (strchr(NODES_SEPARATOR_LIST, aValue)) { break; }
 		else { aString++; aCount++; } }
 	return aCount;
 }
 
-static sXNode* findNodeByPath(sXNode* aNode, char* aName) {
+static sXNode* nodesFindNodeByPath(sXNode* aNode, char* aName) {
 	sXNode* aFound = NULL;
 	int aLen; char* aTmp;
 	if ((aTmp = aName) && (aLen = strlen(aName))) {
 		aFound = aNode;
-		while ((aTmp = tokenFindFirstNonSeparator(aTmp))) {
-			aLen = tokenCountNonSeparator(aTmp);
+		while ((aTmp = nodesTokenFindFirstNonSeparator(aTmp))) {
+			aLen = nodesTokenCountNonSeparator(aTmp);
 			NewStringCopyFixed(aToken, aTmp, aLen);
-			aFound = findNodeByName(aFound, aToken);
+			aFound = nodesFindNodeByName(aFound, aToken);
 			xFree(aToken);
 			aTmp += aLen;
 			if (!aFound) break;
@@ -222,57 +220,57 @@ static sXNode* findNodeByPath(sXNode* aNode, char* aName) {
 	return aFound;
 }
 
-sXNode* findNode(sXNode* aNode, ... ) {
+sXNode* nodesFindNode(sXNode* aNode, ... ) {
 	sXNode* aFound = aNode;
 	char* aStringArg;
 	if (aFound) {
 		va_list argList;
 		va_start( argList, aNode );
 		while ((aStringArg = va_arg(argList, char*)))
-			if (!(aFound = findNodeByPath(aFound, aStringArg))) break;
+			if (!(aFound = nodesFindNodeByPath(aFound, aStringArg))) break;
 		va_end( argList );
 	}
 	return aFound;
 }
 
-static DWORD amIFirstSon(sXNode* aNode) { return (aNode->Parent->FirstSon == aNode); }
+static DWORD nodesAmIFirstSon(sXNode* aNode) { return (aNode->Parent->FirstSon == aNode); }
 
-static void unlinkNodeTree(sXNode* aNode) {
+static void nodesUnlinkTree(sXNode* aNode) {
 	if (aNode->Parent) {
-		if (amIFirstSon(aNode)) { aNode->Parent->FirstSon = aNode->Next; }
-		else findPrevious(aNode)->Next = aNode->Next; }
+		if (nodesAmIFirstSon(aNode)) { aNode->Parent->FirstSon = aNode->Next; }
+		else nodesFindPrevious(aNode)->Next = aNode->Next; }
 	aNode->Next = NULL;
 	aNode->Parent = NULL;
 }
 
 // Recursive nodes kill
-void killNodeTree(sXNode* aNode) {
-	while (aNode->FirstSon) { killNodeTree(aNode->FirstSon); }
+void nodesKillTree(sXNode* aNode) {
+	while (aNode->FirstSon) { nodesKillTree(aNode->FirstSon); }
 	//Prevent to kill Global Root Node
 	if (aNode->UniqueID) {
-		unlinkNodeTree(aNode);
-		cleanNodeValue(aNode);
+		nodesUnlinkTree(aNode);
+		nodesCleanNodeValue(aNode);
 		if (aNode->Name) xFree(aNode->Name);
-		findAndFreeUniqueID(aNode->UniqueID);
+		nodesFindAndFreeUniqueID(aNode->UniqueID);
 		xFree(aNode);
 	}
 }
 
-void moveNodeTo(sXNode* aParent, sXNode* aNode) {
-	unlinkNodeTree(aNode);
-	insertFirst(aParent, aNode);
+void nodesMoveNodeTo(sXNode* aParent, sXNode* aNode) {
+	nodesUnlinkTree(aNode);
+	nodesInsertFirst(aParent, aNode);
 }
 
-//void killAllSons(sXNode* aNode) { while (aNode->FirstSon) { killNode(aNode->FirstSon); } }
+//void nodesKillAllSons(sXNode* aNode) { while (aNode->FirstSon) { nodesKillTree(aNode->FirstSon); } }
 
-static void debugOffset(int level, char aChar) {
+static void nodesConsoleOffset(int level, char aChar) {
 	int offset = level * OFFSETTAB;
-	debug("\n"); while (offset--) { debug(" "); }
-	if (aChar) debug("%c",aChar);
+	console("\n"); while (offset--) { console(" "); }
+	if (aChar) console("%c",aChar);
 }
 
-static void debugValue(sXNode* aNode) {
-	NewString(valueString, DEBUG_STRING_VALUE_LEN);
+static void nodesConsoleValue(sXNode* aNode) {
+	NewString(valueString, CONSOLE_STRING_VALUE_MAX_LEN);
 	switch (aNode->DataType) {
 		case eDTDataU8: case eDTDataS8: { sprintf(valueString, "== BYTE:['%d']", aNode->Value.aChar); break; }
 		case eDTDataU16: case eDTDataS16: { sprintf(valueString, "== WORD:['%d']", aNode->Value.aShort); break; }
@@ -282,46 +280,46 @@ static void debugValue(sXNode* aNode) {
 		case eDTPtrU32: case eDTPtrS32: { sprintf(valueString, "-> DWORD:['%d']", *(DWORD*)aNode->Value.pVoid); break; }
 //		case eDTPtrU64: case eDTPtrS64: { sprintf(valueString, "-> QWORD:['%d-%d']", *((DWORD*)aNode->Value.pVoid + 0),*((DWORD*)aNode->Value.pVoid + sizeof(int))); break; }
 		case eDTPtrUser: { sprintf(valueString, "-> PTR:['0x%08x']", aNode->Value.aDword); break; }
-		case eDTString: { snprintf(valueString, DEBUG_STRING_VALUE_LEN - 1, "== STR:['%s']", aNode->Value.pString); break; }
-		case eDTReference: { snprintf(valueString, DEBUG_STRING_VALUE_LEN - 1, "-> '%s'", (aNode->Value.pXNode->Name)); break; } // ((sXNode*)(aNode->Value.pVoid))->Name));
-		case eDTReferedID: { snprintf(valueString, DEBUG_STRING_VALUE_LEN - 1, "-> (ID 0x%08x)", (((sUNIQItem*)(aNode->Value.pVoid))->UniqueID)); break; }
+		case eDTString: { snprintf(valueString, CONSOLE_STRING_VALUE_MAX_LEN - 1, "== STR:['%s']", aNode->Value.pString); break; }
+		case eDTReference: { snprintf(valueString, CONSOLE_STRING_VALUE_MAX_LEN - 1, "-> '%s'", (aNode->Value.pXNode->Name)); break; } // ((sXNode*)(aNode->Value.pVoid))->Name));
+		case eDTReferedID: { snprintf(valueString, CONSOLE_STRING_VALUE_MAX_LEN - 1, "-> (ID 0x%08x)", (((sUNIQItem*)(aNode->Value.pVoid))->UniqueID)); break; }
 		default: { valueString[0] = 0; break; } }
-	debug("%s", valueString);
+	console("%s", valueString);
 	xFree(valueString);
 }
 
-static void debugNodeType(sXNode* aNode) {
+static void nodesConsoleNodeType(sXNode* aNode) {
 	switch (aNode->DataType) {
-		case eDTCollection: { debug(" {'%s'} ", aNode->Name); break; }
-		case eDTVoid: { debug(" '%s' ", aNode->Name); break; }
-		case eDTReference: case eDTReferedID: { debug(" <'%s'> ", aNode->Name); break; }
-		default: { debug(" ['%s'] ", aNode->Name); break; }
+		case eDTCollection: { console(" {'%s'} ", aNode->Name); break; }
+		case eDTVoid: { console(" '%s' ", aNode->Name); break; }
+		case eDTReference: case eDTReferedID: { console(" <'%s'> ", aNode->Name); break; }
+		default: { console(" ['%s'] ", aNode->Name); break; }
 	}
 }
 
-static void debugNodeTreeInternal(sXNode* aNode, int level, int maxl, int showID, int showName, int showValue) {
+static void nodesConsoleTreeInternal(sXNode* aNode, int level, int maxl, int showID, int showName, int showValue) {
 	sXNode* aSubs;
-	if (!aNode->UniqueID) { debug("\n<<<'%s'>>>", ALL_ACTIVE_DATA); }
+	if (!aNode->UniqueID) { console("\n<<<'%s'>>>", ALL_ACTIVE_DATA); }
 	else {
-		debugOffset(level, 0);
-		debug("*");
-		if (showID) debug(" (ID 0x%08x)", aNode->UniqueID);
-		if (showName) debugNodeType(aNode);
-		if (showValue) debugValue(aNode);
+		nodesConsoleOffset(level, 0);
+		console("*");
+		if (showID) console(" (ID 0x%08x)", aNode->UniqueID);
+		if (showName) nodesConsoleNodeType(aNode);
+		if (showValue) nodesConsoleValue(aNode);
 	}
 
 	aSubs = aNode->FirstSon;
 	if (aSubs) {
 		if (level < maxl) {
-			debugOffset(level, '{');
-			do debugNodeTreeInternal(aSubs, level + 1, maxl, showID, showName, showValue);
+			nodesConsoleOffset(level, '{');
+			do nodesConsoleTreeInternal(aSubs, level + 1, maxl, showID, showName, showValue);
 			while ((aSubs = aSubs->Next));
-			debugOffset(level, '}');
-		} else debug(" { }");
+			nodesConsoleOffset(level, '}');
+		} else console(" { }");
 	}
 }
 
-void debugNodeTree(sXNode* aNode, int level, int maxl, int showID, int showName, int showValue) {
-	if (aNode && (level <= maxl)) { debugNodeTreeInternal(aNode, level, maxl, showID, showName, showValue); debug("\n"); }
+void nodesConsoleTree(sXNode* aNode, int level, int maxl, int showID, int showName, int showValue) {
+	if (aNode && (level <= maxl)) { nodesConsoleTreeInternal(aNode, level, maxl, showID, showName, showValue); console("\n"); }
 }
 

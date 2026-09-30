@@ -1,10 +1,3 @@
-/*
- * consoles.c
- *
- *  Created on: Dec 15, 2017
- *      Author: dprokhorov
- */
-
 #include "global.h"
 
 #define CON_OPENER ">"

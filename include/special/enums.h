@@ -1,4 +1,3 @@
-
 #ifdef XENUM_BEGIN
 #undef XENUM_BEGIN
 #endif

@@ -1,4 +1,3 @@
-
 #ifndef SPRINTB_H_
 #define SPRINTB_H_
 

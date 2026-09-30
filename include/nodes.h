@@ -2,6 +2,9 @@
 #define NODES_H_
 
 #include "global.h"
+
+#define NODES_SEPARATOR_LIST " \\/;:,.>"
+
 #include "nodes.enums.h"
 
 typedef union {
@@ -46,11 +49,11 @@ typedef struct ssUNIQItem {
 
 extern uUniValue UNIZEROVALUE;
 extern sXNode AllData;
-extern void debugNodeTree(sXNode* aNode, int level, int maxl, int showID, int showName, int showValue);
-extern sXNode* addNodeAndValue(sXNode* aParent, char* aName, eDataTypes aDataType, uUniValue aValue, DWORD autoClean);
-extern sXNode* findNode(sXNode* aNode, ... ); // NULL as last argument is a MUST!!!
-extern void killNodeTree(sXNode* aNode);
-extern void killUniques(void);
-extern void moveNodeTo(sXNode* aParent, sXNode* aNode);
+extern void nodesConsoleTree(sXNode* aNode, int level, int maxl, int showID, int showName, int showValue);
+extern sXNode* nodesAddNodeAndValue(sXNode* aParent, char* aName, eDataTypes aDataType, uUniValue aValue, DWORD autoClean);
+extern sXNode* nodesFindNode(sXNode* aNode, ... ); // NULL as last argument is a MUST!!!
+extern void nodesKillTree(sXNode* aNode);
+extern void nodesKillUniques(void);
+extern void nodesMoveNodeTo(sXNode* aParent, sXNode* aNode);
 
 #endif /* NODES_H_ */
