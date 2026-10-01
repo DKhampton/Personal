@@ -20,7 +20,7 @@ typedef union {
 	WORD  aWords[2];
 	int   aInt;
 	DWORD aDword;
-	IPv4Struct aIPv4;
+	sIPv4 aIPv4;
 	struct ssXNode* pXNode;
 } uUniValue;
 

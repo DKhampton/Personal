@@ -19,10 +19,12 @@ typedef unsigned char BYTE;
 #define max(x,y) 	(((x)>(y))?(x):(y))
 
 #ifdef BIG_ENDIAN
-#define IPv4Struct struct { BYTE aIP1; BYTE aIP2; BYTE aIP3; BYTE aIP4; }
+#define defsIPv4 struct { BYTE aIP1; BYTE aIP2; BYTE aIP3; BYTE aIP4; }
 #else
-#define IPv4Struct struct { BYTE aIP4; BYTE aIP3; BYTE aIP2; BYTE aIP1; }
+#define defsIPv4 struct { BYTE aIP4; BYTE aIP3; BYTE aIP2; BYTE aIP1; }
 #endif
+
+typedef defsIPv4 sIPv4;
 
 typedef struct {
 	union {
