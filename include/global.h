@@ -38,11 +38,11 @@ extern void*	localMalloc(DWORD size);
 extern void		localFree(void* addr);
 extern bool		isSilentMode;
 extern void		console(char* fmt, ...);
-extern void		consoleFillDelimiterLine();
+extern void		consoleFillDelimiterLine(void);
 
 #ifdef DEBUG_MODE
 	#define debug(...) console(__VA_ARGS__)
-	#define debugFillDelimiterLine() fillDelimiterLine(console)
+	#define debugFillDelimiterLine() consolefillDelimiterLine()
 #else
 	#define debug(...) { }
 	#define debugFillDelimiterLine() { }
